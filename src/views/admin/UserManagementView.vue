@@ -26,7 +26,7 @@
           @click="openModal(false)"
           class="relative inline-block px-6 py-3 font-medium text-green-600 transition duration-300 bg-white border-2 border-green-600 rounded-lg group hover:bg-green-600 hover:text-white"
         >
-          <span class="relative">Add User</span>
+          <span class="relative flex items-center"><span><AddUserIcon class="w-5 h-5 mr-2"/></span>Add User</span>
         </button>
       </div>
       <el-dialog v-model="dialogFormVisible" :title="isEditing ? 'Update User' : 'Add User'" width="600px">
@@ -98,13 +98,13 @@
                 @click="editUser(user.id)"
                 class="relative inline-block px-6 py-3 font-medium text-yellow-600 transition duration-300 bg-white border-2 border-yellow-600 rounded-lg group hover:bg-yellow-600 hover:text-white"
               >
-                <span class="relative">Edit</span>
+                <span class="relative flex items-center"><span><EditUserIcon class="w-5 h-5 mr-2"/></span>Edit</span>
               </button>
               <button
                 @click="deleteUser(user.id)"
                 class="relative inline-block px-6 py-3 font-medium text-red-600 transition duration-300 bg-white border-2 border-red-600 rounded-lg group hover:bg-red-600 hover:text-white"
               >
-                <span class="relative">Delete</span>
+                <span class="relative flex items-center"><span><DeleteUserIcon class="w-5 h-5 mr-2"/></span>Delete</span>
               </button>
             </td>
           </tr>
@@ -137,21 +137,49 @@ import MainLayout from "@/components/layouts/MainLayout.vue";
 import { ref, computed, onMounted, reactive, watch } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import Swal from "sweetalert2";
-import { ElNotification } from "element-plus";
-
+import { ElLoading, ElNotification } from "element-plus";
+import AddUserIcon from "@/components/icons/AddUserIcon.vue";
+import EditUserIcon from "@/components/icons/EditUserIcon.vue";
+import DeleteUserIcon from "@/components/icons/DeleteUserIcon.vue";
+import type { LoadingInstance } from "element-plus/es/components/loading/src/loading.mjs";
 const searchQuery = ref("");
 const userStore = useUserStore();
 const currentPage = ref(1);
-const itemsPerPage = ref(10); // Adjust the items per page as needed
+const itemsPerPage = ref(10);
 const dialogFormVisible = ref(false);
 const formLabelWidth = "140px";
 const isEditing = ref(false);
 const userIdToEdit = ref<number | null>(null);
+const loading = ref<LoadingInstance| null>(null);
 
-// Sample user data (replace with actual data from your store or API)
-onMounted(() => {
-  userStore.fetchUsers();
+
+
+onMounted( async () => {
+  showLoading()
+  try {
+    await userStore.fetchUsers();
+
+  } catch (error) {
+    console.error(error)
+  } finally {
+    hideLoading()
+  }
 });
+
+const showLoading = () => {
+      loading.value = ElLoading.service({
+        lock: true,
+        text: 'Loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      }) as LoadingInstance;
+    };
+
+    // Function to hide the loading spinner
+    const hideLoading = () => {
+      if (loading.value) {
+        loading.value.close();
+      }
+    };
 
 const openModal = async (isEdit: boolean, user?: any) => {
   await userStore.fetchRole();

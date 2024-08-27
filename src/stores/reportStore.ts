@@ -38,7 +38,66 @@ export const useReportStore = defineStore('report', () => {
     } 
   };
 
-  const exportToExcel = async (option:string,startDate?: string, endDate?: string, selectedCategory?: string) => {
+  
+
+  const exportToPDF = (startDate?: string, endDate?: string, selectedCategory?: string) => {
+    const doc = new jsPDF();
+    let title = 'Laporan Ticket ';
+
+    if (startDate && endDate && selectedCategory) {
+      title += `${startDate}_${endDate} Kategori ${selectedCategory}`;
+    } else if (startDate && endDate) {
+      title += `${startDate}_${endDate}`;
+    } else if (selectedCategory) {
+      title += `Kategori ${selectedCategory}`;
+    } else {
+      title = 'Laporan Seluruh Ticket';
+    }
+    
+    // Add title
+    doc.setFontSize(18);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textWidth = doc.getTextWidth(title);
+    const textX = (pageWidth - textWidth) / 2; // Center the title
+    doc.text(title, textX, 20);
+  
+    // Add some spacing before the table
+    doc.autoTable({
+      margin: { top: 30 },
+      head: [
+        ['Ticket Number', 'Date', 'Client Name', 'Kategori', 'Subject', 'Status']
+      ],
+      body: reports.value.map(report => [
+        report.ticket_number,
+        new Date(report.created_at).toLocaleDateString(),
+        report.clientname,
+        report.kategori_name,
+        report.subject,
+        report.status,
+      ]),
+    });
+  
+    // Save the PDF
+    let fileName = 'Laporan_Tiket_';
+    
+    if (!startDate && !endDate && !selectedCategory) {
+        fileName += 'Semua_Ticket.pdf';
+    } else {
+        if (startDate && endDate) {
+            fileName += `${startDate}_${endDate}`;
+        }
+        if (selectedCategory) {
+            fileName += (startDate && endDate ? '_' : '') + `Kategori_${selectedCategory}`;
+        }
+        fileName += '.pdf';
+    }
+    
+  
+    doc.save(fileName);
+  };
+
+// EXCELLL
+  const exportToExcel = async (startDate?: string, endDate?: string, selectedCategory?: string) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Reports');
 
@@ -68,20 +127,17 @@ export const useReportStore = defineStore('report', () => {
 
     let fileName = 'Laporan_Tiket_';
   
-    switch (option) {
-      case 'all':
-        fileName += 'Semua.xlsx';
-        break;
-      case 'date':
-        fileName += `${startDate}_Sampai_${endDate}.xlsx`;
-        break;
-      case 'category':
-        fileName += `${selectedCategory}.xlsx`;
-        break;
-      default:
-        fileName = 'Laporan_Ticket.xlsx';
-        break;
-    }
+    if (!startDate && !endDate && !selectedCategory) {
+      fileName += 'Semua_Ticket.xlsx';
+  } else {
+      if (startDate && endDate) {
+          fileName += `${startDate}_${endDate}`;
+      }
+      if (selectedCategory) {
+          fileName += (startDate && endDate ? '_' : '') + `Kategori_${selectedCategory}`;
+      }
+      fileName += '.xlsx';
+  }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -91,66 +147,11 @@ export const useReportStore = defineStore('report', () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  const exportToPDF = (option: string, startDate?: string, endDate?: string, selectedCategory?: string) => {
-    const doc = new jsPDF();
-    let title = 'Laporan_Tiket_';
-
-switch (option) {
-  case 'all':
-    title += 'Semua';
-    break;
-  case 'date':
-    title += `${startDate}_Sampai_${endDate}`;
-    break;
-  case 'category':
-    title += `${selectedCategory}`;
-    break;
-  default:
-    title = 'Laporan_Ticket';
-    break;
-}
-
-    // Add title
-    doc.setFontSize(18);
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const textWidth = doc.getTextWidth(title);
-    const textX = (pageWidth - textWidth) / 2; // Center the title
-    doc.text(title, textX, 20);
-
-    // Add some spacing before the table
-    doc.autoTable({
-      margin: { top: 30 },
-      head: [
-        ['Ticket Number', 'Date', 'Client Name', 'Kategori', 'Subject', 'Status']
-      ],
-      body: reports.value.map(report => [
-        report.ticket_number,
-        new Date(report.created_at).toLocaleDateString(),
-        report.clientname,
-        report.kategori_name,
-        report.subject,
-        report.status,
-      ]),
-    });
-
-    // Save the PDF
-    let fileName = 'Laporan_Tiket_';
-    if (option === 'all') {
-      fileName += 'All.pdf';
-    } else if (option === 'date') {
-      fileName += `${startDate}_to_${endDate}.pdf`;
-    } else if (option === 'category') {
-      fileName += `${selectedCategory}.pdf`;
-    }
-    doc.save(fileName);
-  };
-
+  }; 
   return {
     reports,
     fetchReports,
-    exportToExcel,
     exportToPDF,
+    exportToExcel,
   };
 });

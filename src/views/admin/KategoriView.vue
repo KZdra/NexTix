@@ -31,7 +31,7 @@
               @click="openModal(false)"
               class="relative inline-block px-6 py-3 font-medium text-green-600 transition duration-300 bg-white border-2 border-green-600 rounded-lg group hover:bg-green-600 hover:text-white"
             >
-              <span class="relative">Tambah</span>
+              <span class="relative flex items-center"><span><AddKategoriIcon class="w-5 h-5 mr-2"/></span>Tambah</span>
             </button>
             <el-dialog v-model="dialogFormVisible" :title="isEditing ? 'Update Kategori' : 'Add Kategori'" width="600px">
           <el-form :model="form">
@@ -103,18 +103,18 @@
                 <td class="px-6 py-4">{{ kategori.id }}</td>
                 <td class="px-6 py-4">{{ kategori.nama_kategori }}</td>
                 <td class="px-6 py-4">{{ kategori.status }}</td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 ">
                   <button
                     @click="editKategori(kategori.id)"
                     class="relative inline-block px-6 py-3 font-medium text-yellow-600 transition duration-300 bg-white border-2 border-yellow-600 rounded-lg group hover:bg-yellow-600 hover:text-white"
                   >
-                    <span class="relative">Edit</span>
+                    <span class="relative flex items-center"><span><EditKategoriIcon class="w-5 h-5 mr-2"/></span>Edit</span>
                   </button>
                   <button
                     @click="deleteKategori(kategori.id)"
                     class="relative inline-block px-6 py-3 font-medium text-red-600 transition duration-300 bg-white border-2 border-red-600 rounded-lg group hover:bg-red-600 hover:text-white"
                   >
-                    <span class="relative">Hapus</span>
+                    <span class="relative flex items-center"><span><DeleteKategoriIcon class="w-5 h-5 mr-2"/></span>Hapus</span>
                   </button>
                 </td>
               </tr>
@@ -144,6 +144,9 @@
 
 <script setup lang="ts">
 import MainLayout from '@/components/layouts/MainLayout.vue';
+import AddKategoriIcon from '@/components/icons/AddKategoriIcon.vue';
+import EditKategoriIcon from '@/components/icons/EditKategoriIcon.vue';
+import DeleteKategoriIcon from '@/components/icons/DeleteKategoriIcon.vue';
 import { ref, computed, onMounted, reactive, watch } from 'vue';
 import { useKategoriStore } from '@/stores/kategoriStore';
 import Swal from 'sweetalert2';

@@ -1,7 +1,7 @@
 <template>
   <MainLayout>
     <!-- Main Content Section -->
-    <div class="flex space-x-6">
+    <div class="flex space-x-6" v-loading="loading">
       <!-- Tickets Detail Section -->
       <section class="flex-1 bg-white p-6 rounded-lg shadow-md">
         <div class="flex justify-between items-center border-b pb-4 mb-4">
@@ -185,7 +185,15 @@ const ticket = ref<any>({});
 const newComment = ref<string>("");
 const attachment = ref<File | null>(null);
 
-onMounted(async () => {
+const loading = ref<Boolean>(false)
+
+onMounted( () => {
+ fetchAndLoad();
+});
+
+
+const fetchAndLoad = async () => {
+  loading.value = true
   try {
     const response = await ticketStore.fetchTicket(ticketNumber);
     if (response && response.data) {
@@ -205,8 +213,10 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Error fetching ticket:", error);
-  }
-});
+  } finally {
+    loading.value=false;
+  } 
+}
 
 const handleFileChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
@@ -246,8 +256,14 @@ const formatDate = (dateString: string) => {
   return dayjs(dateString).format("D MMMM YYYY");
 };
 
-const updateTicketStatus = (ticket: any) => {
-  ticketStore.updateTicket(ticket.ticket_number, ticket.status);
+const updateTicketStatus = async (ticket: any) => {
+  try {
+    await ticketStore.updateTicket(ticket.ticket_number, ticket.status);
+  } catch (error) {
+    console.error(error)
+  } finally {
+    await fetchAndLoad();
+  }
 };
 
 const goBack = () => {
