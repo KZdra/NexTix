@@ -263,12 +263,12 @@ const loading = ref<LoadingInstance | null>(null)
 onMounted(async () => {
   showLoading()
   try {
-    await authStore.refreshToken();
+    // await authStore.refreshToken();
+    await ticketStore.fetchTickets();
+   await kategoriStore.fetchActiveKategoris();
   } catch (error) {
     console.error(error)
   } finally {
-    ticketStore.fetchTickets();
-    kategoriStore.fetchActiveKategoris();
     hideLoading();
   }
 });

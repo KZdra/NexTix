@@ -322,6 +322,7 @@ const deleteKategori = async (id: number) => {
         'Kategori telah dihapus.',
         'success'
       );
+      kategoriStore.fetchKategoris();
     } catch (error) {
       Swal.fire(
         'Gagal!',

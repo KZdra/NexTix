@@ -28,12 +28,12 @@
   const authStore = useAuthStore();
   
   const login = async () => {
-    try {
-      await authStore.login({ email: email.value, password: password.value });
-    } catch (error) {
-      console.error('Login failed', error);
-    } 
-  };
+  try {
+    await authStore.login({ email: email.value, password: password.value });
+  } catch (error) {
+    console.error('Login failed', error)
+  }
+};
   </script>
   
   <style scoped>

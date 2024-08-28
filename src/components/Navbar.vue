@@ -5,7 +5,10 @@
       <div class="text-xl font-bold text-gray-700">NexTix</div>
       <ul class="flex space-x-4 font-medium text-gray-700">
         <li class="transition-colors duration-300 hover:text-blue-500">
-          <router-link to="/" class="block">Ticket</router-link>
+          <router-link to="/" class="block">Home</router-link>
+        </li>
+        <li class="transition-colors duration-300 hover:text-blue-500">
+          <router-link to="/ticket" class="block">Ticket</router-link>
         </li>
         <li
           v-if="canAccessCategory"

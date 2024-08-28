@@ -80,7 +80,6 @@ export const useTicketStore = defineStore('ticket', () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       }); // Use apiService.apiPost
       state.tickets.push(response.data);
-      router.push({ name: 'Home' });
     } catch (error) {
       errorHandling(error);
     }

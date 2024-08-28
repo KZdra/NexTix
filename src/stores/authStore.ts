@@ -4,6 +4,7 @@ import router from '@/router';
 import Cookies from 'js-cookie';
 import  { errorHandling }  from '@/utils/errorHandling'; 
 import { apiService } from '@/utils/apiService'; 
+import Swal from 'sweetalert2';
 
 interface User {
   id: number; 
@@ -35,11 +36,19 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials: { email: string; password: string }) => {
     try {
       const response = await apiService.apiPost('/api/auth/login', credentials); // Menggunakan apiService.apiPost
-      setToken(response.data.access_token);
-      setUser(response.data.user);
-      router.push({ name: 'home' });
+      await Swal.fire({
+        icon: 'success',
+        title: 'Login berhasil',
+        text: 'Redirecting...',
+        timer: 2000, 
+        showConfirmButton: false
+      });
+       setToken(response.data.access_token);
+       setUser(response.data.user);
     } catch (error) {
       errorHandling(error); 
+    } finally {
+      router.push({ name: 'home' });
     }
   };
 

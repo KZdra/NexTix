@@ -47,8 +47,7 @@ export const useKategoriStore = defineStore('kategori', () => {
 
   const createKategori = async (nama_kategori: string, status: string) => {
     try {
-      const response = await apiService.apiPost('/api/auth/kategoris', { nama_kategori, status }); // Use apiService.apiPost
-      state.kategoris.push(response.data);
+      await apiService.apiPost('/api/auth/kategoris', { nama_kategori, status }); // Use apiService.apiPost
     } catch (error) {
      errorHandling(error);
     }
@@ -56,9 +55,7 @@ export const useKategoriStore = defineStore('kategori', () => {
 
   const updateKategori = async (id: number, nama_kategori: string, status: string) => {
     try {
-      const response = await apiService.apiPut(`/api/auth/kategoris/${id}`, { nama_kategori, status }); // Use apiService.apiPut
-      console.log('Update successful:', response.data);
-      // Bisa menambahkan logika lain seperti notifikasi sukses
+      await apiService.apiPut(`/api/auth/kategoris/${id}`, { nama_kategori, status }); 
     } catch (error) {
      errorHandling(error);
     }
@@ -67,7 +64,6 @@ export const useKategoriStore = defineStore('kategori', () => {
   const deleteKategori = async (id: number) => {
     try {
       await apiService.apiDelete(`/api/auth/kategoris/${id}`, {}); // Use apiService.apiDelete
-      state.kategoris = state.kategoris.filter(kategori => kategori.id !== id);
     } catch (error) {
      errorHandling(error);
     }
