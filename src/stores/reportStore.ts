@@ -5,6 +5,7 @@ import { errorHandling } from '@/utils/errorHandling';
 import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import dayjs from 'dayjs';
 
 interface Report {
   assign_by:string,
@@ -45,9 +46,9 @@ export const useReportStore = defineStore('report', () => {
     let title = 'Laporan Ticket ';
 
     if (startDate && endDate && selectedCategory) {
-      title += `${startDate}_${endDate} Kategori ${selectedCategory}`;
+      title += `${formatDate(startDate)}-${formatDate(endDate)} Kategori ${selectedCategory}`;
     } else if (startDate && endDate) {
-      title += `${startDate}_${endDate}`;
+      title += `${formatDate(startDate)}-${formatDate(endDate)}`;
     } else if (selectedCategory) {
       title += `Kategori ${selectedCategory}`;
     } else {
@@ -69,7 +70,7 @@ export const useReportStore = defineStore('report', () => {
       ],
       body: reports.value.map(report => [
         report.ticket_number,
-        new Date(report.created_at).toLocaleDateString(),
+        formatDate(report.created_at),
         report.clientname,
         report.kategori_name,
         report.subject,
@@ -84,7 +85,7 @@ export const useReportStore = defineStore('report', () => {
         fileName += 'Semua_Ticket.pdf';
     } else {
         if (startDate && endDate) {
-            fileName += `${startDate}_${endDate}`;
+            fileName += `${formatDate(startDate)}-${formatDate(endDate)}`;
         }
         if (selectedCategory) {
             fileName += (startDate && endDate ? '_' : '') + `Kategori_${selectedCategory}`;
@@ -117,7 +118,7 @@ export const useReportStore = defineStore('report', () => {
       const rowIndex = index + 2;
       worksheet.addRow({
         ticket_number: report.ticket_number,
-        date: new Date(report.created_at).toLocaleDateString(),
+        date: formatDate(report.created_at),
         clientname: report.clientname,
         kategori_name: report.kategori_name,
         subject: report.subject,
@@ -126,12 +127,13 @@ export const useReportStore = defineStore('report', () => {
     });
 
     let fileName = 'Laporan_Tiket_';
-  
+
     if (!startDate && !endDate && !selectedCategory) {
       fileName += 'Semua_Ticket.xlsx';
   } else {
       if (startDate && endDate) {
-          fileName += `${startDate}_${endDate}`;
+        
+          fileName += `${formatDate(startDate)}-${formatDate(endDate)}`;
       }
       if (selectedCategory) {
           fileName += (startDate && endDate ? '_' : '') + `Kategori_${selectedCategory}`;
@@ -148,9 +150,14 @@ export const useReportStore = defineStore('report', () => {
     link.click();
     document.body.removeChild(link);
   }; 
+
+  const formatDate = (dateString: string) => {
+    return dayjs(dateString).format('D MMMM YYYY');
+  };
   return {
     reports,
     fetchReports,
+    formatDate,
     exportToPDF,
     exportToExcel,
   };

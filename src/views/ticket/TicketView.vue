@@ -266,6 +266,7 @@ onMounted(async () => {
   try {
     await authStore.refreshToken();
   } catch (error) {
+    console.error(error)
   } finally {
     ticketStore.fetchTickets();
     kategoriStore.fetchActiveKategoris();
@@ -293,7 +294,7 @@ const formLabelWidth = "120px";
 const form = reactive<Form>({
   issue: "",
   subject: "",
-  kategori_id: 2,
+  kategori_id: 1,
   attachment: null,
 });
 

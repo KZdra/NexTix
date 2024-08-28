@@ -274,19 +274,19 @@ const openFullScreen = () => {
 
 const submitForm = async () => {
   if (isEditing.value && kategoriIdToEdit.value) {
-    // Editing an existing user
+    
     await kategoriStore.updateKategori(kategoriIdToEdit.value, form.kategori,form.status);
     ElNotification({
       title: "Success",
-      message: `User ${form.kategori} updated successfully!`,
+      message: `Kategori ${form.kategori} updated successfully!`,
       type: "success",
     });
   } else {
-    // Adding a new user
+    // Adding a new Kategori
     await kategoriStore.createKategori(form.kategori,form.status);
     ElNotification({
       title: "Success",
-      message: "User added successfully!",
+      message: "Kategori added successfully!",
       type: "success",
     });
   }

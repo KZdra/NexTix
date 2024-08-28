@@ -123,7 +123,7 @@
                   {{ report.ticket_number }}
                 </td>
                 <td class="py-3 px-6 border-b border-gray-200">
-                  {{ new Date(report.created_at).toLocaleDateString() }}
+                  {{ reportStore.formatDate(report.created_at) }}
                 </td>
                 <td class="py-3 px-6 border-b border-gray-200">
                   {{ report.clientname }}

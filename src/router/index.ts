@@ -70,7 +70,12 @@ router.beforeEach(async (to, from, next) => {
       next({ name: "login" });
       return;
     }
-
+    
+    if (to.name === 'login' && authStore.isAuthenticated) {
+      next({ name: 'home' }); // Redirect to a safe route, e.g., home page
+      return;
+    }
+    
     if (to.meta.roles && to.meta.roles.length > 0) {
       const userRoles = authStore.user?.role || [];
       const hasRole = to.meta.roles.some((role) => userRoles.includes(role));
