@@ -236,7 +236,6 @@ import { useRouter } from "vue-router";
 import { useKategoriStore } from "@/stores/kategoriStore";
 import { ElLoading, ElNotification } from "element-plus";
 import type { LoadingInstance } from "element-plus/es/components/loading/src/loading.mjs";
-import { closeAll } from "element-plus/es/components/notification/src/notify.mjs";
 interface Form {
   issue: string;
   subject: string;

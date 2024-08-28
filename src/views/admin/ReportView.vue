@@ -160,7 +160,6 @@ import FilterIcon from "@/components/icons/FilterIcon.vue";
 
 const reportStore = useReportStore();
 const kategoriStore = useKategoriStore();
-const selectedOption = ref([]);
 const dateRange = ref('');
 const selectedCategory = ref(0);
 const KategoriName= ref<string>('');
