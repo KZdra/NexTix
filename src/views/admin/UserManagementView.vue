@@ -49,6 +49,14 @@
               show-password
             />
           </el-form-item>
+          <el-form-item label="Confirm Password" :label-width="formLabelWidth">
+            <el-input
+              v-model="userData.password_confirmation"
+              type="password"
+              placeholder="Please input password"
+              show-password
+            />
+          </el-form-item>
           <el-form-item label="Roles" :label-width="formLabelWidth">
             <el-select v-model="userData.role_id" placeholder="Select a Role">
               <el-option
@@ -199,6 +207,7 @@ const userData = reactive({
   name: "",
   email: "",
   password: "",
+  password_confirmation:"",
   role_id: 3,
 });
 
@@ -213,6 +222,7 @@ const resetForm = () => {
   userData.name = "";
   userData.email = "";
   userData.password = "";
+  userData.password_confirmation="";
   userData.role_id = 3; // Reset to default role ID
 };
 
@@ -287,7 +297,6 @@ const nextPage = () => {
 
 const handleSubmit = async () => {
   if (isEditing.value && userIdToEdit.value) {
-    // Editing an existing user
     await userStore.updateUser(userIdToEdit.value, userData);
     ElNotification({
       title: "Success",
@@ -295,7 +304,15 @@ const handleSubmit = async () => {
       type: "success",
     });
   } else {
-    // Adding a new user
+    if (!userData.password || userData.password !== userData.password_confirmation) {
+      ElNotification({
+        title: "Error",
+        message: "Passwords do not match or are empty!",
+        type: "error",
+      });
+      return;
+    }
+
     await userStore.registerUser(userData);
     ElNotification({
       title: "Success",
@@ -304,6 +321,6 @@ const handleSubmit = async () => {
     });
   }
 
-  dialogFormVisible.value = false; // Close the dialog after submission
+  dialogFormVisible.value = false; 
 };
 </script>

@@ -7,8 +7,15 @@
         </h1>
       </div>
       <div class="mt-2">
-        <h1 v-if="canSeeAllTickets" class="text-3xl font-bold text-gray-900 mb-2">Statistik</h1>
-        <h1 v-else class="text-3xl font-bold text-gray-900 mb-2">Ticket Anda</h1>
+        <h1
+          v-if="canSeeAllTickets"
+          class="text-3xl font-bold text-gray-900 mb-2"
+        >
+          Statistik
+        </h1>
+        <h1 v-else class="text-3xl font-bold text-gray-900 mb-2">
+          Ticket Anda
+        </h1>
         <el-row :gutter="16">
           <el-col :span="8">
             <div class="statistic-card">
@@ -56,31 +63,38 @@ import { computed, onMounted } from "vue";
 const authStore = useAuthStore();
 const statisticStore = useStatisticStore();
 type UserRole = "admin" | "support" | "client";
-const userRoles = computed<UserRole[]>( () => [authStore.user?.role].filter(Boolean) as UserRole[]);
+const userRoles = computed<UserRole[]>(
+  () => [authStore.user?.role].filter(Boolean) as UserRole[]
+);
 // Role-based access control
 const canSeeUsersRegistered = computed(() => userRoles.value.includes("admin"));
-const canSeeAllTickets = computed(() =>userRoles.value.includes("admin")|| userRoles.value.includes("support"));
+const canSeeAllTickets = computed(
+  () => userRoles.value.includes("admin") || userRoles.value.includes("support")
+);
 const canSeeOwnTickets = computed(() => userRoles.value.includes("client"));
 onMounted(async () => {
   try {
     await authStore.refreshToken();
-    if(canSeeAllTickets.value){
-       await statisticStore.fetchTicketStats();
-    } 
-    if(canSeeUsersRegistered.value){
-        await statisticStore.fetchTicketStats();
-        await statisticStore.fetchUsersStats();
-    } 
-    if(canSeeOwnTickets.value){
-        await statisticStore.fetchTicketStatsPerUser();
+    if (canSeeAllTickets.value) {
+      await statisticStore.fetchTicketStats();
+    }
+    if (canSeeUsersRegistered.value) {
+      await statisticStore.fetchTicketStats();
+      await statisticStore.fetchUsersStats();
+    }
+    if (canSeeOwnTickets.value) {
+      await statisticStore.fetchTicketStatsPerUser();
     }
 
-    console.log(canSeeAllTickets.value,canSeeOwnTickets.value,canSeeUsersRegistered.value);
+    console.log(
+      canSeeAllTickets.value,
+      canSeeOwnTickets.value,
+      canSeeUsersRegistered.value
+    );
   } catch (error) {
     console.error(error);
   }
 });
-
 </script>
 <style scoped>
 :global(h2#card-usage ~ .example .example-showcase) {

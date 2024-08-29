@@ -3,7 +3,10 @@
     <div class="px-4 py-6 max-w-8xl sm:px-6 lg:px-8">
       <div class="flex items-center justify-between">
         <!-- Title on the left -->
-        <h1 class="text-3xl font-bold text-gray-900">Ticket All</h1>
+        <h1 v-if="canSeeAllTickets" class="text-3xl font-bold text-gray-900">
+          All Tickets
+        </h1>
+        <h1 v-else class="text-3xl font-bold text-gray-900">Your Ticket</h1>
 
         <!-- Search input with button -->
         <div class="flex">
@@ -23,15 +26,13 @@
 
         <!-- Add button on the right -->
         <button
-  @click="dialogFormVisible = true"
-  class="relative inline-block px-6 py-3 font-medium text-green-600 transition duration-300 bg-white border-2 border-green-600 rounded-lg group hover:bg-green-600 hover:text-white"
->
-  <span class="relative flex items-center">
-    <AddIcon class="w-5 h-5 mr-2"/>
-    <span>Add</span>
-  </span>
-</button>
-
+          @click="dialogFormVisible = true"
+          class="relative inline-block px-6 py-3 font-medium text-green-600 transition duration-300 bg-white border-2 border-green-600 rounded-lg group hover:bg-green-600 hover:text-white"
+        >
+            <AddIcon class="w-5 h-5 mr-2" />
+            <span>Add</span>
+          </span>
+        </button>
       </div>
     </div>
     <el-dialog v-model="dialogFormVisible" title="Add Ticket" width="600px">
@@ -193,12 +194,14 @@
             <td class="px-6 py-4">{{ ticket.subject }}</td>
             <td class="px-6 py-4">{{ ticket.created_at }}</td>
             <td class="px-6 py-4">
-              
               <button
                 @click="viewTicketDetail(ticket.ticket_number)"
                 class="relative inline-block px-6 py-3 font-medium text-yellow-600 transition duration-300 bg-white border-2 border-yellow-600 rounded-lg group hover:bg-yellow-600 hover:text-white"
               >
-                <span class="relative flex items-center "><div class=""><DetailIcon class="w-5 h-5 mr-2"/></div>Detail</span>
+                <span class="relative flex items-center"
+                  ><div class=""><DetailIcon class="w-5 h-5 mr-2" /></div>
+                  Detail</span
+                >
               </button>
             </td>
           </tr>
@@ -258,35 +261,56 @@ const sortKey = ref<
   | "created_at"
 >("ticket_number");
 const sortOrder = ref("asc"); // asc or desc
-const loading = ref<LoadingInstance | null>(null)
+const loading = ref<LoadingInstance | null>(null);
+type UserRole = "admin" | "support" | "client";
+const userRoles = computed<UserRole[]>(
+  () => [authStore.user?.role].filter(Boolean) as UserRole[]
+);
+// Role-based access control
+const canSeeAllTickets = computed(
+  () => userRoles.value.includes("admin") || userRoles.value.includes("support")
+);
+const canSeeOwnTickets = computed(() => userRoles.value.includes("client"));
 
 onMounted(async () => {
-  showLoading()
+  showLoading();
   try {
-    // await authStore.refreshToken();
-    await ticketStore.fetchTickets();
-   await kategoriStore.fetchActiveKategoris();
+    await conditionalFetch();
+    await kategoriStore.fetchActiveKategoris();
   } catch (error) {
-    console.error(error)
+    console.error(error);
   } finally {
     hideLoading();
   }
 });
 
+const conditionalFetch = async () => {
+  try {
+    if (canSeeOwnTickets.value) {
+      await ticketStore.fetchUserTickets();
+    } else if (canSeeAllTickets.value) {
+      await ticketStore.fetchTickets();
+    } else {
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 const showLoading = () => {
-      loading.value = ElLoading.service({
-        lock: true,
-        text: 'Loading',
-        background: 'rgba(0, 0, 0, 0.7)',
-      }) as LoadingInstance;
-    };
+  loading.value = ElLoading.service({
+    lock: true,
+    text: "Loading",
+    background: "rgba(0, 0, 0, 0.7)",
+  }) as LoadingInstance;
+};
 
-    // Function to hide the loading spinner
-    const hideLoading = () => {
-      if (loading.value) {
-        loading.value.close();
-      }
-    };
+// Function to hide the loading spinner
+const hideLoading = () => {
+  if (loading.value) {
+    loading.value.close();
+  }
+};
 const dialogFormVisible = ref(false);
 const formLabelWidth = "120px";
 
@@ -358,10 +382,6 @@ const sortTable = (key: string) => {
     sortKey.value = key;
     sortOrder.value = "asc";
   }
-};
-
-const updateTicketStatus = (ticket: any) => {
-  ticketStore.updateTicket(ticket.ticket_number, ticket.status);
 };
 
 // Perform search when search button is clicked

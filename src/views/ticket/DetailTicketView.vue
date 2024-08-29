@@ -253,8 +253,8 @@ const isCommentImage = (attachmentName: string | undefined) => {
   return imageExtensions.includes(extension || "");
 };
 const formatDate = (dateString: string) => {
-  return dayjs(dateString).format("D MMMM YYYY");
-};
+    return dayjs(dateString).format('D MMMM YYYY HH:mm');
+  };
 
 const updateTicketStatus = async (ticket: any) => {
   try {

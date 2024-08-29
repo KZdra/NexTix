@@ -11,7 +11,6 @@
           <!-- Removed "all" option for brevity -->
           <tr class="bg-white">
             <td class="py-3 px-6 border-b border-gray-200">
-         
               <label class="inline-flex items-center">
                 <span class="ml-2">Tanggal</span>
               </label>
@@ -35,7 +34,6 @@
           <tr class="bg-gray-100">
             <td class="py-3 px-6">
               <label class="inline-flex items-center">
-              
                 <span class="ml-2">Kategori:</span>
               </label>
               <div class="mt-4">
@@ -60,15 +58,14 @@
 
       <div class="mt-6 flex justify-end">
         <button
-  @click="fetchFilteredReports"
-  class="px-6 py-3 font-medium text-white bg-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center"
->
-  <span class="mr-2">
-    <FilterIcon class="w-6 h-6"/>
-  </span>
-  Filter
-</button>
-
+          @click="fetchFilteredReports"
+          class="px-6 py-3 font-medium text-white bg-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center"
+        >
+          <span class="mr-2">
+            <FilterIcon class="w-6 h-6" />
+          </span>
+          Filter
+        </button>
       </div>
 
       <!-- Report Data Table Section -->
@@ -79,14 +76,14 @@
               @click="exportToExcel"
               class="bg-green-500 px-6 py-3 font-medium text-white rounded hover:bg-green-600"
             >
-            <span><ExcelIcon class="w-6 h-6 mr-2"/></span>
+              <span><ExcelIcon class="w-6 h-6 mr-2" /></span>
               Export to Excel
             </button>
             <button
               @click="exportToPDF"
               class="ml-2 bg-red-500 px-6 py-3 font-medium text-white rounded hover:bg-red-600"
             >
-            <PdfIcon class="w-6 h-6 mr-2"/>
+              <PdfIcon class="w-6 h-6 mr-2" />
               Export to PDF
             </button>
           </div>
@@ -160,40 +157,39 @@ import FilterIcon from "@/components/icons/FilterIcon.vue";
 
 const reportStore = useReportStore();
 const kategoriStore = useKategoriStore();
-const dateRange = ref('');
+const dateRange = ref("");
 const selectedCategory = ref(0);
-const KategoriName= ref<string>('');
+const KategoriName = ref<string>("");
 const loading = ref(false);
 const shortcuts = [
   {
-    text: 'Last week',
+    text: "Last week",
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+      return [start, end];
     },
   },
   {
-    text: 'Last month',
+    text: "Last month",
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+      return [start, end];
     },
   },
   {
-    text: 'Last 3 months',
+    text: "Last 3 months",
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+      return [start, end];
     },
   },
-]
-
+];
 
 onMounted(async () => {
   await fetchRandK();
@@ -219,7 +215,7 @@ const fetchFilteredReports = async () => {
       dateRange.value[1],
       selectedCategory.value
     );
-    await getKategName()
+    await getKategName();
   } catch (error) {
     console.error("Failed to fetch");
   } finally {
@@ -227,11 +223,10 @@ const fetchFilteredReports = async () => {
   }
 };
 
-const getKategName = async () =>{
-  const response =  await kategoriStore.fetchKategori(selectedCategory.value);
+const getKategName = async () => {
+  const response = await kategoriStore.fetchKategori(selectedCategory.value);
   KategoriName.value = response.nama_kategori;
-  
-}
+};
 
 const exportToExcel = async () => {
   await reportStore.exportToExcel(
@@ -244,7 +239,7 @@ const exportToExcel = async () => {
 const exportToPDF = () => {
   reportStore.exportToPDF(
     dateRange.value[0],
-      dateRange.value[1],
+    dateRange.value[1],
     KategoriName.value
   );
 };

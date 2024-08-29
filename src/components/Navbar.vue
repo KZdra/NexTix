@@ -5,22 +5,37 @@
       <div class="text-xl font-bold text-gray-700">NexTix</div>
       <ul class="flex space-x-4 font-medium text-gray-700">
         <li class="transition-colors duration-300 hover:text-blue-500">
-          <router-link to="/" class="block">Home</router-link>
+          <router-link to="/" class="block"
+            ><span class="mr-2"
+              ><font-awesome-icon icon="fa-solid fa-house" /></span
+            >Home</router-link
+          >
         </li>
         <li class="transition-colors duration-300 hover:text-blue-500">
-          <router-link to="/ticket" class="block">Ticket</router-link>
+          <router-link to="/ticket" class="block"
+            ><span class="mr-2"
+              ><font-awesome-icon icon="fa-solid fa-ticket" /></span
+            >Ticket</router-link
+          >
         </li>
         <li
           v-if="canAccessCategory"
           class="transition-colors duration-300 hover:text-blue-500"
         >
-          <router-link to="/kategori" class="block">Kategori</router-link>
+          <router-link to="/kategori" class="block"
+            ><span class="mr-2"
+              ><font-awesome-icon icon="fa-solid fa-list" /></span
+            >Kategori</router-link
+          >
         </li>
         <!-- Other links -->
         <li v-if="canAccessReport">
           <router-link
             to="/report"
             class="transition-colors duration-300 hover:text-blue-500"
+          >
+            <span class="mr-2"
+              ><font-awesome-icon icon="fa-solid fa-file-invoice" /></span
             >Report</router-link
           >
         </li>
@@ -28,6 +43,8 @@
           <router-link
             to="/manageuser"
             class="transition-colors duration-300 hover:text-blue-500"
+            ><span class="mr-2"
+              ><font-awesome-icon icon="fa-solid fa-users-gear" /></span
             >User Management</router-link
           >
         </li>
@@ -35,6 +52,8 @@
           <router-link
             to="/faq"
             class="transition-colors duration-300 hover:text-blue-500"
+            ><span class="mr-2"
+              ><font-awesome-icon icon="fa-solid fa-question" /></span
             >FAQ</router-link
           >
         </li>
@@ -50,7 +69,9 @@
           v-if="isLoggedIn"
           class="px-4 py-2 text-gray-700 transition duration-300 rounded-full"
         >
-          Logout
+          Logout<span class="ml-2"
+            ><font-awesome-icon icon="fa-solid fa-right-from-bracket"
+          /></span>
         </button>
         <div v-else>
           <router-link
