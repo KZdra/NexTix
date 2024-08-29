@@ -75,22 +75,16 @@ const canSeeOwnTickets = computed(() => userRoles.value.includes("client"));
 onMounted(async () => {
   try {
     await authStore.refreshToken();
-    if (canSeeAllTickets.value) {
-      await statisticStore.fetchTicketStats();
-    }
     if (canSeeUsersRegistered.value) {
       await statisticStore.fetchTicketStats();
       await statisticStore.fetchUsersStats();
     }
+    if (canSeeAllTickets.value) {
+      await statisticStore.fetchTicketStats();
+    }
     if (canSeeOwnTickets.value) {
       await statisticStore.fetchTicketStatsPerUser();
     }
-
-    console.log(
-      canSeeAllTickets.value,
-      canSeeOwnTickets.value,
-      canSeeUsersRegistered.value
-    );
   } catch (error) {
     console.error(error);
   }

@@ -6,82 +6,73 @@
       <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Report</h1>
 
       <!-- Filter Criteria Section -->
-      <table class="w-full border-collapse">
-        <tbody>
-          <!-- Removed "all" option for brevity -->
-          <tr class="bg-white">
-            <td class="py-3 px-6 border-b border-gray-200">
-              <label class="inline-flex items-center">
-                <span class="ml-2">Tanggal</span>
-              </label>
-              <div class="mt-4">
-                <div class="flex space-x-4">
-                  <el-date-picker
-                    v-model="dateRange"
-                    type="daterange"
-                    unlink-panels
-                    range-separator="To"
-                    start-placeholder="Start date"
-                    end-placeholder="End date"
-                    :shortcuts="shortcuts"
-                    format="YYYY/MM/DD"
-                    value-format="YYYY-MM-DD"
-                  />
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr class="bg-gray-100">
-            <td class="py-3 px-6">
-              <label class="inline-flex items-center">
-                <span class="ml-2">Kategori:</span>
-              </label>
-              <div class="mt-4">
-                <select
-                  v-model="selectedCategory"
-                  class="mt-1 block w-full border-2 border-gray-300 rounded-lg p-2"
-                >
-                  <option value="0" disabled>-- Pilih kategori --</option>
-                  <option
-                    v-for="kategori in kategoriStore.kategoris"
-                    :key="kategori.id"
-                    :value="kategori.id"
-                  >
-                    {{ kategori.nama_kategori }}
-                  </option>
-                </select>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<!-- Filter Criteria Section -->
+<div class="flex flex-wrap space-y-4 md:space-y-0 md:space-x-8 mb-6">
+    <!-- Date Range Picker Section -->
+    <div class="flex-1 items-center justify-center bg-white p-6 rounded-lg shadow">
+      <div class="w-full">
+    <label class="block text-gray-600 font-medium mb-2">Tanggal</label>
+    <el-date-picker
+      v-model="dateRange"
+      type="daterange"
+      unlink-panels
+      range-separator="To"
+      start-placeholder="Start date"
+      end-placeholder="End date"
+      :shortcuts="shortcuts"
+      format="YYYY/MM/DD"
+      value-format="YYYY-MM-DD"
+      class="w-full"
+    />
+  </div>
+    </div>
 
-      <div class="mt-6 flex justify-end">
-        <button
-          @click="fetchFilteredReports"
-          class="px-6 py-3 font-medium text-white bg-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center"
+    <!-- Category Selector Section -->
+    <div class="flex-1 bg-white p-6 rounded-lg shadow">
+      <label class="block text-gray-600 font-medium mb-2">Kategori</label>
+      <select
+        v-model="selectedCategory"
+        class="w-full border-2 border-gray-300 rounded-lg p-2"
+      >
+        <option value="0" disabled>-- Pilih kategori --</option>
+        <option
+          v-for="kategori in kategoriStore.kategoris"
+          :key="kategori.id"
+          :value="kategori.id"
         >
-          <span class="mr-2">
-            <FilterIcon class="w-6 h-6" />
-          </span>
-          Filter
-        </button>
-      </div>
+          {{ kategori.nama_kategori }}
+        </option>
+      </select>
+    </div>
+    <div class="flex justify-end">
+    <button
+      @click="fetchFilteredReports"
+      class="px-6 py-3 font-medium text-white bg-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center"
+    >
+      <FilterIcon class="w-6 h-6 mr-2" />
+      Filter
+    </button>
+  </div>
+  </div>
+
+  <!-- Filter Button -->
+  
+
 
       <!-- Report Data Table Section -->
       <div v-loading="loading">
         <div v-if="reportStore.reports.length > 0" class="mt-6">
-          <div class="p-2">
+          <div class="p-2 flex">
             <button
               @click="exportToExcel"
-              class="bg-green-500 px-6 py-3 font-medium text-white rounded hover:bg-green-600"
+              class="bg-green-500 px-6 py-3 font-medium text-white rounded hover:bg-green-600 flex justify-center items-center"
             >
               <span><ExcelIcon class="w-6 h-6 mr-2" /></span>
               Export to Excel
             </button>
             <button
               @click="exportToPDF"
-              class="ml-2 bg-red-500 px-6 py-3 font-medium text-white rounded hover:bg-red-600"
+              class="ml-2 bg-red-500 px-6 py-3 font-medium text-white rounded hover:bg-red-600 flex items-center justify-center"
             >
               <PdfIcon class="w-6 h-6 mr-2" />
               Export to PDF

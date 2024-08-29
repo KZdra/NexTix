@@ -40,7 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
         icon: 'success',
         title: 'Login berhasil',
         text: 'Redirecting...',
-        timer: 2000, 
+        timer: 3000, 
         showConfirmButton: false
       });
        setToken(response.data.access_token);

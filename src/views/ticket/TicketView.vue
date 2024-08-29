@@ -432,7 +432,7 @@ const handleSubmit = async () => {
       message: "Ticket Berhasil Di Submit",
       type: "success",
     });
-    ticketStore.fetchTickets();
+    conditionalFetch()
   }
 };
 </script>
