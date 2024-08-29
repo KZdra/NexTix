@@ -29,6 +29,7 @@
           @click="dialogFormVisible = true"
           class="relative inline-block px-6 py-3 font-medium text-green-600 transition duration-300 bg-white border-2 border-green-600 rounded-lg group hover:bg-green-600 hover:text-white"
         >
+          <span class="relative flex items-center">
             <AddIcon class="w-5 h-5 mr-2" />
             <span>Add</span>
           </span>
