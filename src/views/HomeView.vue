@@ -17,7 +17,7 @@
           Ticket Anda
         </h1>
         <el-row :gutter="16">
-          <el-col :span="8">
+          <el-col :span="8" v-loading="loading">
             <div class="statistic-card">
               <el-statistic :value="statisticStore.ticketStats.open">
                 <template #title>
@@ -29,7 +29,18 @@
             </div>
           </el-col>
           <el-col :span="8">
-            <div class="statistic-card">
+            <div class="statistic-card" v-loading="loading">
+              <el-statistic :value="statisticStore.ticketStats.in_progress">
+                <template #title>
+                  <div style="display: inline-flex; align-items: center">
+                    Ticket Pending / On Progress
+                  </div>
+                </template>
+              </el-statistic>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="statistic-card" v-loading="loading">
               <el-statistic :value="statisticStore.ticketStats.closed">
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
@@ -39,8 +50,8 @@
               </el-statistic>
             </div>
           </el-col>
-          <el-col :span="8" v-if="canSeeUsersRegistered">
-            <div class="statistic-card">
+          <el-col :span="8" v-if="canSeeUsersRegistered" class="mt-2">
+            <div class="statistic-card" v-loading="loading">
               <el-statistic :value="statisticStore.userStats.UserRegistered">
                 <template #title>
                   <div style="display: inline-flex; align-items: center">
@@ -59,7 +70,7 @@
 import MainLayout from "@/components/layouts/MainLayout.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useStatisticStore } from "@/stores/statisticStore";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 const authStore = useAuthStore();
 const statisticStore = useStatisticStore();
 type UserRole = "admin" | "support" | "client";
@@ -71,8 +82,10 @@ const canSeeUsersRegistered = computed(() => userRoles.value.includes("admin"));
 const canSeeAllTickets = computed(
   () => userRoles.value.includes("admin") || userRoles.value.includes("support")
 );
-const canSeeOwnTickets = computed(() => userRoles.value.includes("client"));
+const canSeeOwnTickets = computed(() => userRoles.value.includes("client")); 
+const loading = ref(false);
 onMounted(async () => {
+  loading.value = true;
   try {
     await authStore.refreshToken();
     if (canSeeUsersRegistered.value) {
@@ -87,6 +100,8 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error(error);
+  } finally {
+    loading.value = false;
   }
 });
 </script>

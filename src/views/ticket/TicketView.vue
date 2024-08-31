@@ -4,9 +4,9 @@
       <div class="flex items-center justify-between">
         <!-- Title on the left -->
         <h1 v-if="canSeeAllTickets" class="text-3xl font-bold text-gray-900">
-          All Tickets
+          Semua Ticket
         </h1>
-        <h1 v-else class="text-3xl font-bold text-gray-900">Your Ticket</h1>
+        <h1 v-else class="text-3xl font-bold text-gray-900">Ticket Anda</h1>
 
         <!-- Search input with button -->
         <div class="flex">

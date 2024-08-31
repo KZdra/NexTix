@@ -5,6 +5,7 @@ import { apiService } from '@/utils/apiService';
 // Define an interface for TicketStats and UserStats
 interface TicketStats {
   open?: number;
+  in_progress?:number
   closed?: number;
 }
 

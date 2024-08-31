@@ -33,10 +33,13 @@
           <div class="mt-6">
             <h3 class="text-lg font-semibold mb-2">Attachment:</h3>
             <div v-if="isImage(ticket.attachment_name)">
-              <img
-                :src="ticket.attachment_url"
-                alt="Attachment Image"
+              <el-image
                 class="mt-2 max-w-full rounded-md"
+                :src="ticket.attachment_url"
+                :zoom-rate="1.2"
+                :max-scale="7"
+                :min-scale="0.2"
+                :preview-src-list="[ticket.attachment_url]"
               />
               <button
                 @click="ticketStore.downloadAttachment(ticketNumber)"
@@ -111,11 +114,14 @@
             <!-- Comment Attachment Section -->
             <div v-if="comment.attachment_url">
               <div v-if="isCommentImage(comment.attachment)">
-                <img
-                  :src="comment.attachment_url"
-                  alt="Attachment Image"
-                  class="mt-2 max-w-full rounded-md"
-                />
+                <el-image
+                class="mt-2 max-w-full rounded-md"
+                :src="comment.attachment_url"
+                :zoom-rate="1.2"
+                :max-scale="7"
+                :min-scale="0.2"
+                :preview-src-list="[comment.attachment_url]"
+              />
                 <button
                   @click="commentStore.downloadCommentAttachment(comment.id)"
                   class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
@@ -171,6 +177,7 @@ import { useCommentStore } from "@/stores/commentStore"; // Import the comment s
 import { useAuthStore } from "@/stores/authStore";
 import { useRoute, useRouter } from "vue-router";
 import dayjs from "dayjs";
+import { faTicketAlt } from "@fortawesome/free-solid-svg-icons";
 
 const ticketStore = useTicketStore();
 const commentStore = useCommentStore(); // Use the comment store
@@ -185,15 +192,14 @@ const ticket = ref<any>({});
 const newComment = ref<string>("");
 const attachment = ref<File | null>(null);
 
-const loading = ref<Boolean>(false)
+const loading = ref<Boolean>(false);
 
-onMounted( () => {
- fetchAndLoad();
+onMounted(() => {
+  fetchAndLoad();
 });
 
-
 const fetchAndLoad = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const response = await ticketStore.fetchTicket(ticketNumber);
     if (response && response.data) {
@@ -214,9 +220,9 @@ const fetchAndLoad = async () => {
   } catch (error) {
     console.error("Error fetching ticket:", error);
   } finally {
-    loading.value=false;
-  } 
-}
+    loading.value = false;
+  }
+};
 
 const handleFileChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
@@ -253,14 +259,14 @@ const isCommentImage = (attachmentName: string | undefined) => {
   return imageExtensions.includes(extension || "");
 };
 const formatDate = (dateString: string) => {
-    return dayjs(dateString).format('D MMMM YYYY HH:mm');
-  };
+  return dayjs(dateString).format("D MMMM YYYY HH:mm");
+};
 
 const updateTicketStatus = async (ticket: any) => {
   try {
     await ticketStore.updateTicket(ticket.ticket_number, ticket.status);
   } catch (error) {
-    console.error(error)
+    console.error(error);
   } finally {
     await fetchAndLoad();
   }
