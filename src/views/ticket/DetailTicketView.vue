@@ -52,7 +52,7 @@
               <a
                 :href="ticket.attachment_url"
                 download
-                class="inline-block mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                class="inline-Block mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
               >
                 Download {{ ticket.attachment_name }}
               </a>
@@ -66,32 +66,65 @@
         <!-- Status Ticket Section -->
         <section class="bg-white p-6 rounded-lg shadow-md">
           <h4 class="text-lg font-semibold mb-4">Status Ticket</h4>
-          <select
-            v-if="
-              authStore.user?.role === 'admin' ||
-              authStore.user?.role === 'support'
-            "
-            v-model="ticket.status"
-            @change="updateTicketStatus(ticket)"
-            class="px-2 py-1 text-gray-700 bg-white border rounded"
-          >
-            <option value="open">Open</option>
-            <option value="in_progress">In Progress</option>
-            <option value="closed">Closed</option>
-          </select>
+<select
+  v-if="
+    authStore.user?.role === 'admin' || 
+    authStore.user?.role === 'support'
+  "
+  v-model="ticket.status"
+  @change="updateTicketStatus(ticket)"
+  class="px-2 py-1 text-gray-700 bg-white border rounded"
+>
+  <option value="open">Open</option>
+  <option value="in_progress">In Progress</option>
+  <option value="closed">Closed</option>
+</select>
 
-          <!-- Display status text for clients with conditional styling -->
-          <span
-            v-else
-            :class="{
-              'bg-green-100 text-green-800': ticket.status === 'open',
-              'bg-yellow-100 text-yellow-800': ticket.status === 'in_progress',
-              'bg-red-100 text-red-800 ': ticket.status === 'closed',
-            }"
-            class="py-1 px-2.5 border-none rounded font-medium"
-          >
-            {{ ticket.status }}
-          </span>
+<!-- Display status text for clients with conditional styling -->
+<span
+  v-else
+  :class="{
+    'bg-green-100 text-green-800': ticket.status === 'open',
+    'bg-yellow-100 text-yellow-800': ticket.status === 'in_progress',
+    'bg-red-100 text-red-800': ticket.status === 'closed',
+  }"
+  class="py-1 px-2.5 border-none rounded font-medium"
+>
+  {{ ticket.status }}
+</span>
+
+<h4 class="text-lg font-semibold mb-1 mt-2">Priority</h4>
+<select
+  v-if="
+    authStore.user?.role === 'admin' || 
+    authStore.user?.role === 'support'
+  "
+  v-model="ticket.priority"
+  class="px-2 py-1 text-gray-700 bg-white border rounded"
+>
+  <option value="Major">Major</option>
+  <option value="Block">Block</option>
+  <option value="Critical">Critical</option>
+  <option value="Minor">Minor</option>
+  <option value="Trivial">Trivial</option>
+  <option value="Normal">Normal</option>
+</select>
+
+<!-- Display priority with icon for clients -->
+<span
+    v-else
+    :class="{
+      'bg-red-100 text-red-800': ticket.priority === 'Critical' || ticket.priority === 'Block',
+      'bg-yellow-100 text-yellow-800': ticket.priority === 'Major',
+      'bg-blue-100 text-blue-800': ticket.priority === 'Normal',
+      'bg-green-100 text-green-800': ticket.priority === 'Minor' || ticket.priority === 'Trivial',
+    }"
+    class="flex items-center py-1 px-2.5 border-none rounded font-medium"
+  >
+    <PriorityIcon :props="ticket.priority"/>
+    {{ ticket.priority }}
+  </span>
+
           <h4 class="text-lg font-semibold mb-1 mt-2">Assign by</h4>
           <h2 class="text-xl font-bold">{{ ticket.assign_by }}</h2>
         </section>
@@ -147,14 +180,14 @@
           <textarea
             v-model="newComment"
             rows="4"
-            class="block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            class="Block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           ></textarea>
 
           <h4 class="text-lg font-semibold mt-6 mb-4">Add Attachment</h4>
           <input
             type="file"
             @change="handleFileChange"
-            class="block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            class="Block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
 
           <button
@@ -177,7 +210,7 @@ import { useCommentStore } from "@/stores/commentStore"; // Import the comment s
 import { useAuthStore } from "@/stores/authStore";
 import { useRoute, useRouter } from "vue-router";
 import dayjs from "dayjs";
-import { faTicketAlt } from "@fortawesome/free-solid-svg-icons";
+import PriorityIcon from "@/components/PriorityIcon.vue";
 
 const ticketStore = useTicketStore();
 const commentStore = useCommentStore(); // Use the comment store
@@ -207,6 +240,7 @@ const fetchAndLoad = async () => {
         id_ticket: response.data.id_ticket,
         ticket_number: response.data.ticket_number,
         client_name: response.data.clientname,
+        priority: response.data.priority,
         created_at: response.data.created_at,
         assign_by: response.data.assign_by,
         status: response.data.status,

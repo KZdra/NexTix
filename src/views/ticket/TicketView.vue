@@ -62,6 +62,20 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="Priority" :label-width="formLabelWidth">
+          <el-select
+            v-model="form.priority_id"
+            value="0"
+            placeholder="Select Priority"
+          >
+            <el-option
+              v-for="p in priorityStore.priority"
+              :key="p.id"
+              :label="p.priority_name"
+              :value="p.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="Attachment" :label-width="formLabelWidth">
           <input type="file" @change="handleFileUpload" />
         </el-form-item>
@@ -192,7 +206,7 @@
               </span>
             </td>
 
-            <td class="px-6 py-4">{{ ticket.subject }}</td>
+            <td class="px-6 py-4"><span><PriorityIcon :props="ticket.priority"/></span>{{ ticket.subject }}</td>
             <td class="px-6 py-4">{{ ticket.created_at }}</td>
             <td class="px-6 py-4">
               <button
@@ -233,6 +247,7 @@
 import MainLayout from "@/components/layouts/MainLayout.vue";
 import AddIcon from "@/components/icons/AddIcon.vue";
 import DetailIcon from "@/components/icons/DetailIcon.vue";
+import PriorityIcon from "@/components/PriorityIcon.vue";
 import { ref, computed, onMounted, reactive } from "vue";
 import { useTicketStore } from "@/stores/ticketStore";
 import { useAuthStore } from "@/stores/authStore";
@@ -240,15 +255,18 @@ import { useRouter } from "vue-router";
 import { useKategoriStore } from "@/stores/kategoriStore";
 import { ElLoading, ElNotification } from "element-plus";
 import type { LoadingInstance } from "element-plus/es/components/loading/src/loading.mjs";
+import { usePriorityStore } from "@/stores/priorityStore";
 interface Form {
   issue: string;
   subject: string;
   kategori_id: number;
+  priority_id:number;
   attachment: File | null;
 }
 const authStore = useAuthStore();
 const ticketStore = useTicketStore();
 const kategoriStore = useKategoriStore();
+const priorityStore = usePriorityStore();
 const router = useRouter();
 const searchQuery = ref("");
 const currentPage = ref(1);
@@ -277,11 +295,12 @@ onMounted(async () => {
   showLoading();
   try {
     await conditionalFetch();
-    await kategoriStore.fetchActiveKategoris();
   } catch (error) {
     console.error(error);
   } finally {
     hideLoading();
+    await priorityStore.fetchPriority();
+    await kategoriStore.fetchActiveKategoris();
   }
 });
 
@@ -319,6 +338,7 @@ const form = reactive<Form>({
   issue: "",
   subject: "",
   kategori_id: 1,
+  priority_id: 1 ,
   attachment: null,
 });
 
@@ -419,20 +439,22 @@ const handleSubmit = async () => {
       form.issue,
       form.subject,
       form.kategori_id,
+      form.priority_id,
       form.attachment
     );
     // Reset form fields
     form.issue = "";
     form.subject = "";
-    form.kategori_id = 0;
+    form.kategori_id = 1;
     form.attachment = null;
+    form.priority_id = 1
     dialogFormVisible.value = false;
     ElNotification({
       title: "Success",
       message: "Ticket Berhasil Di Submit",
       type: "success",
     });
-    conditionalFetch()
   }
+    conditionalFetch()
 };
 </script>

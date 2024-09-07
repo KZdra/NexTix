@@ -11,6 +11,7 @@ interface Ticket {
   issue: string;
   status: string;
   clientname: string;
+  priority: string,
   assign_by: string;
   kategori_name: string;
   subject: string;
@@ -89,13 +90,14 @@ export const useTicketStore = defineStore("ticket", () => {
     issue: string,
     subject: string,
     kategori_id: number,
-    attachment?: File
-  ) => {
+    priority_id: number,
+    attachment?: File) => {
     try {
       const formData = new FormData();
       formData.append("issue", issue);
       formData.append("subject", subject);
       formData.append("kategori_id", kategori_id.toString());
+      formData.append("priority_id", priority_id.toString())
       if (attachment) {
         formData.append("attachment", attachment);
       }
@@ -103,7 +105,6 @@ export const useTicketStore = defineStore("ticket", () => {
       const response = await apiService.apiPost("/api/auth/tickets", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       }); // Use apiService.apiPost
-      state.tickets.push(response.data);
     } catch (error) {
       errorHandling(error);
     }
