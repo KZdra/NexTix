@@ -2,163 +2,112 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { apiService } from '@/utils/apiService';
 import { errorHandling } from '@/utils/errorHandling';
-import ExcelJS from 'exceljs';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import axios from 'axios';
 import dayjs from 'dayjs';
 
 interface Report {
-  assign_by:string,
-  clientname:string,
-  created_at:string,
-  id_ticket:number,
-  issue:string,
-  kategori_id:number,
-  kategori_name:string,
-  status:string,
-  subject:string,
-  ticket_number:string,
-  updated_at:string,
-  user_id:number
+  assign_by: string;
+  clientname: string;
+  created_at: string;
+  id_ticket: number;
+  issue: string;
+  kategori_id: number;
+  kategori_name: string;
+  status: string;
+  subject: string;
+  ticket_number: string;
+  updated_at: string;
+  user_id: number;
+}
 
+export interface ReportFilter {
+  startDate?: string;
+  endDate?: string;
+  categoryId?: number;
+  status?: string;
 }
 
 export const useReportStore = defineStore('report', () => {
   const reports = ref<Report[]>([]);
+  const loading = ref<boolean>(false);
+  const exporting = ref<boolean>(false);
 
-  const fetchReports = async ( startDate?: string, endDate?: string, categoryId?: number) => {
+  const fetchReports = async (filters: ReportFilter = {}) => {
+    loading.value = true;
     try {
       const response = await apiService.apiGet('/api/auth/report', {
-        start_date: startDate,
-        end_date: endDate,
-        category_id: categoryId,
+        start_date: filters.startDate || undefined,
+        end_date: filters.endDate || undefined,
+        category_id: filters.categoryId && filters.categoryId > 0 ? filters.categoryId : undefined,
+        status: filters.status && filters.status !== 'all' ? filters.status : undefined,
       });
-      reports.value = response.data.data;
+
+      if (response && response.data) {
+        reports.value = Array.isArray(response.data.data)
+          ? response.data.data
+          : Array.isArray(response.data)
+          ? response.data
+          : [];
+      }
+      return reports.value;
     } catch (error) {
-      errorHandling(error)
-    } 
+      errorHandling(error);
+      return [];
+    } finally {
+      loading.value = false;
+    }
   };
 
-  
+  const exportReport = async (type: 'pdf' | 'excel', filters: ReportFilter = {}) => {
+    exporting.value = true;
+    try {
+      const endpoint = type === 'pdf' 
+        ? '/api/auth/report/export/pdf' 
+        : '/api/auth/report/export/excel';
 
-  const exportToPDF = (startDate?: string, endDate?: string, selectedCategory?: string) => {
-    const doc = new jsPDF();
-    let title = 'Laporan Ticket ';
+      const token = localStorage.getItem('token') || '';
 
-    if (startDate && endDate && selectedCategory) {
-      title += `${formatDate(startDate)}-${formatDate(endDate)} Kategori ${selectedCategory}`;
-    } else if (startDate && endDate) {
-      title += `${formatDate(startDate)}-${formatDate(endDate)}`;
-    } else if (selectedCategory) {
-      title += `Kategori ${selectedCategory}`;
-    } else {
-      title = 'Laporan Seluruh Ticket';
-    }
-    
-    // Add title
-    doc.setFontSize(18);
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const textWidth = doc.getTextWidth(title);
-    const textX = (pageWidth - textWidth) / 2; // Center the title
-    doc.text(title, textX, 20);
-  
-    // Add some spacing before the table
-    doc.autoTable({
-      margin: { top: 30 },
-      head: [
-        ['Ticket Number', 'Date', 'Client Name', 'Kategori', 'Subject', 'Status']
-      ],
-      body: reports.value.map(report => [
-        report.ticket_number,
-        formatDate(report.created_at),
-        report.clientname,
-        report.kategori_name,
-        report.subject,
-        report.status,
-      ]),
-    });
-  
-    // Save the PDF
-    let fileName = 'Laporan_Tiket_';
-    
-    if (!startDate && !endDate && !selectedCategory) {
-        fileName += 'Semua_Ticket.pdf';
-    } else {
-        if (startDate && endDate) {
-            fileName += `${formatDate(startDate)}-${formatDate(endDate)}`;
-        }
-        if (selectedCategory) {
-            fileName += (startDate && endDate ? '_' : '') + `Kategori_${selectedCategory}`;
-        }
-        fileName += '.pdf';
-    }
-    
-  
-    doc.save(fileName);
-  };
-
-// EXCELLL
-  const exportToExcel = async (startDate?: string, endDate?: string, selectedCategory?: string) => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Reports');
-
-    worksheet.columns = [
-      { header: 'Ticket Number', key: 'ticket_number', width: 15 },
-      { header: 'Date', key: 'date', width: 12 },
-      { header: 'Client Name', key: 'clientname', width: 20 },
-      { header: 'Kategori', key: 'kategori_name', width: 15 },
-      { header: 'Subject', key: 'subject', width: 30 },
-      { header: 'Status', key: 'status', width: 10 }
-    ];
-
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
-
-    reports.value.forEach((report:any, index) => {
-      const rowIndex = index + 2;
-      worksheet.addRow({
-        ticket_number: report.ticket_number,
-        date: formatDate(report.created_at),
-        clientname: report.clientname,
-        kategori_name: report.kategori_name,
-        subject: report.subject,
-        status: report.status,
+      const response = await axios.get(`http://127.0.0.1:8000${endpoint}`, {
+        params: {
+          start_date: filters.startDate || undefined,
+          end_date: filters.endDate || undefined,
+          category_id: filters.categoryId && filters.categoryId > 0 ? filters.categoryId : undefined,
+          status: filters.status && filters.status !== 'all' ? filters.status : undefined,
+        },
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        responseType: 'blob',
       });
-    });
 
-    let fileName = 'Laporan_Tiket_';
-
-    if (!startDate && !endDate && !selectedCategory) {
-      fileName += 'Semua_Ticket.xlsx';
-  } else {
-      if (startDate && endDate) {
-        
-          fileName += `${formatDate(startDate)}-${formatDate(endDate)}`;
-      }
-      if (selectedCategory) {
-          fileName += (startDate && endDate ? '_' : '') + `Kategori_${selectedCategory}`;
-      }
-      fileName += '.xlsx';
-  }
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }; 
+      // Trigger download di browser
+      const blob = new Blob([response.data]);
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Laporan_Tiket_${Date.now()}.${type === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error(`Gagal mengekspor ${type}:`, error);
+      errorHandling(error);
+    } finally {
+      exporting.value = false;
+    }
+  };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
     return dayjs(dateString).format('D MMMM YYYY');
   };
+
   return {
     reports,
+    loading,
+    exporting,
     fetchReports,
+    exportReport,
     formatDate,
-    exportToPDF,
-    exportToExcel,
   };
 });

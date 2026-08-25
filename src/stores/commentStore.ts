@@ -2,13 +2,13 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { apiService } from '@/utils/apiService';
 
-interface Comment {
+export interface Comment {
   id: number;
   ticket_id: number;
   user_id: number;
   comment: string;
-  attachment?: string;
-  attachment_url?: string;
+  attachment?: string | null;
+  attachment_url?: string | null;
   created_at: string;
   updated_at: string;
   user_name: string;
@@ -23,9 +23,16 @@ export const useCommentStore = defineStore('comment', () => {
     loading.value = true;
     error.value = null;
     try {
-      const response = await apiService.apiGet(`/api/auth/comment/${ticket_id}`); // Use apiService.apiGet
-      comments.value = response.data;
-      
+      const response = await apiService.apiGet(`/api/auth/comment/${ticket_id}`);
+      let list: Comment[] = [];
+      if (response && response.data) {
+        if (Array.isArray(response.data)) {
+          list = response.data;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          list = response.data.data;
+        }
+      }
+      comments.value = list;
     } catch (err) {
       error.value = 'Failed to fetch comments';
     } finally {
@@ -36,7 +43,7 @@ export const useCommentStore = defineStore('comment', () => {
   const createComment = async (ticket_id: number, comment: string, attachment?: File) => {
     const formData = new FormData();
     formData.append('ticket_id', ticket_id.toString());
-    formData.append('comment', comment);
+    formData.append('comment', comment || '');
     if (attachment) {
       formData.append('attachment', attachment);
     }
@@ -46,9 +53,9 @@ export const useCommentStore = defineStore('comment', () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      }); // Use apiService.apiPost
-      comments.value.push(response.data);
-      fetchComments(ticket_id);
+      });
+      await fetchComments(ticket_id);
+      return response;
     } catch (err) {
       console.log(err);
       error.value = 'Failed to create comment';
@@ -58,13 +65,8 @@ export const useCommentStore = defineStore('comment', () => {
   const downloadCommentAttachment = async (id: number) => {
     try {
       const comment = comments.value.find(c => c.id === id);
-      if (!comment || !comment.attachment) {
-        console.error('Attachment not found for this comment');
-        return;
-      } else {
-        await apiService.apiDownload(`/api/auth/comment/download/${id}`, comment.attachment); 
-      }
-
+      const filename = comment?.attachment || `attachment_${id}`;
+      await apiService.apiDownload(`/api/auth/comment/download/${id}`, filename);
     } catch (error) {
       console.error('Error downloading comment attachment:', error);
     }
@@ -79,3 +81,4 @@ export const useCommentStore = defineStore('comment', () => {
     createComment,
   };
 });
+

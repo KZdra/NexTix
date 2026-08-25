@@ -36,19 +36,18 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials: { email: string; password: string }) => {
     try {
       const response = await apiService.apiPost('/api/auth/login', credentials); // Menggunakan apiService.apiPost
-      await Swal.fire({
+      Swal.fire({
         icon: 'success',
-        title: 'Login berhasil',
-        text: 'Redirecting...',
-        timer: 3000, 
+        title: 'Login Berhasil',
+        text: 'Selamat datang kembali!',
+        timer: 1500, 
         showConfirmButton: false
       });
-       setToken(response.data.access_token);
-       setUser(response.data.user);
+      setToken(response.data.access_token);
+      setUser(response.data.user);
+      router.push({ name: 'home' });
     } catch (error) {
       errorHandling(error); 
-    } finally {
-      router.push({ name: 'home' });
     }
   };
 

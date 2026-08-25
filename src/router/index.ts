@@ -2,11 +2,18 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import { getActivePinia } from "pinia";
 import { errorHandling } from "@/utils/errorHandling";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
+      name: "landing",
+      component: () => import("@/views/LandingPageView.vue"),
+      meta: { requiresAuth: false, hideNavbar: true },
+    },
+    {
+      path: "/home",
       name: "home",
       component: () => import("@/views/HomeView.vue"),
       meta: { requiresAuth: true, roles: ["client", "support", "admin"] },
@@ -22,6 +29,12 @@ const router = createRouter({
       name: "detailticket",
       component: () => import("@/views/ticket/DetailTicketView.vue"),
       meta: { requiresAuth: true, roles: ["client", "support", "admin"] },
+    },
+    {
+      path: "/departments",
+      name: "departments",
+      component: () => import("@/views/admin/DepartmentView.vue"),
+      meta: { requiresAuth: true, roles: ["admin"] },
     },
     {
       path: "/kategori",
@@ -42,6 +55,12 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ["admin"] },
     },
     {
+      path: "/audit-logs",
+      name: "auditlogs",
+      component: () => import("@/views/admin/AuditLogView.vue"),
+      meta: { requiresAuth: true, roles: ["admin"] },
+    },
+    {
       path: "/faq",
       name: "faq",
       component: () => import("@/views/misc/FaqView.vue"),
@@ -54,6 +73,10 @@ const router = createRouter({
       meta: {
         hideNavbar: true,
       },
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/",
     },
   ],
 });
@@ -78,16 +101,16 @@ router.beforeEach(async (to, from, next) => {
     }
     
     if (to.name === 'login' && authStore.isAuthenticated) {
-      next({ name: 'home' }); // Redirect to a safe route, e.g., home page
+      next({ name: 'home' });
       return;
     }
     
-    if (to.meta.roles && to.meta.roles.length > 0) {
-      const userRoles = authStore.user?.role || [];
-      const hasRole = to.meta.roles.some((role) => userRoles.includes(role));
+    if (to.meta.roles && Array.isArray(to.meta.roles) && to.meta.roles.length > 0) {
+      const userRole = authStore.user?.role || "client";
+      const hasRole = to.meta.roles.includes(userRole);
 
       if (!hasRole) {
-        next({ name: "home" }); // Redirect to a safe route or an access denied page
+        next({ name: "home" });
         return;
       }
     }
